@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
+import { Upload, FileText, AlertCircle, Shield, CheckCircle, X } from 'lucide-react';
 
 const FinancialUpload = ({ onDataParsed }) => {
   const [dragOver, setDragOver] = useState(false);
   const [uploadMethod, setUploadMethod] = useState('manual');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -28,7 +31,39 @@ const FinancialUpload = ({ onDataParsed }) => {
   };
 
   const handleFileUpload = (files) => {
-    // For demo purposes, we'll simulate file parsing
+    // Validate files
+    const validFiles = files.filter(file => {
+      const validTypes = ['application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      return validTypes.includes(file.type) && file.size <= maxSize;
+    });
+
+    if (validFiles.length === 0) {
+      alert('Please upload valid files (PDF, Excel, or CSV) under 10MB');
+      return;
+    }
+
+    setUploadedFiles(validFiles);
+    setIsProcessing(true);
+    setUploadProgress(0);
+
+    // Simulate upload progress
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          // Simulate processing delay
+          setTimeout(() => {
+            processFiles(validFiles);
+          }, 1000);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+  };
+
+  const processFiles = (files) => {
     console.log('Files uploaded:', files);
     
     // Simulate parsed financial data
@@ -50,9 +85,17 @@ const FinancialUpload = ({ onDataParsed }) => {
       }
     };
 
-    if (onDataParsed) {
-      onDataParsed(sampleData);
-    }
+    // Simulate processing delay and call the callback
+    setTimeout(() => {
+      setIsProcessing(false);
+      if (onDataParsed) {
+        onDataParsed(sampleData);
+      }
+    }, 2000);
+  };
+
+  const removeFile = (index) => {
+    setUploadedFiles(files => files.filter((_, i) => i !== index));
   };
 
   if (uploadMethod === 'manual') {
@@ -81,8 +124,28 @@ const FinancialUpload = ({ onDataParsed }) => {
 
   return (
     <div className="card">
-      <h3 style={{ marginBottom: '16px' }}>Upload Financial Documents</h3>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <h3 style={{ marginBottom: 'var(--space-lg)', fontFamily: 'Poppins, sans-serif', fontSize: '1.5rem' }}>
+        Upload Financial Documents
+      </h3>
+      
+      {/* Security Message */}
+      <div style={{
+        background: 'linear-gradient(135deg, var(--primary-50) 0%, var(--success) 0%, var(--primary-100) 100%)',
+        border: '1px solid var(--primary-200)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-md)',
+        marginBottom: 'var(--space-xl)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-sm)'
+      }}>
+        <Shield size={20} color="var(--primary-600)" />
+        <span style={{ color: 'var(--primary-700)', fontSize: '0.9rem', fontWeight: '500' }}>
+          Your financial data is encrypted and secure. We never store your documents.
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)' }}>
         <button
           className={`btn ${uploadMethod === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => setUploadMethod('manual')}
@@ -97,36 +160,154 @@ const FinancialUpload = ({ onDataParsed }) => {
         </button>
       </div>
 
-      <div
-        className={`file-upload ${dragOver ? 'dragover' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <Upload size={48} style={{ color: '#6b7280', marginBottom: '16px' }} />
-        <h4>Drop financial documents here</h4>
-        <p style={{ color: '#6b7280', marginBottom: '16px' }}>
-          or click to select files
-        </p>
-        <input
-          type="file"
-          multiple
-          accept=".pdf,.csv,.xlsx,.xls"
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-          id="file-input"
-        />
-        <label htmlFor="file-input" className="btn btn-secondary">
-          <FileText size={20} />
-          Select Files
-        </label>
-        <div className="alert alert-info" style={{ marginTop: '16px', textAlign: 'left' }}>
-          <AlertCircle size={20} style={{ marginRight: '8px' }} />
-          Supported formats: PDF, CSV, Excel (XLS, XLSX)
-          <br />
-          Documents: Income statements, Balance sheets, Cash flow statements
+      {!isProcessing ? (
+        <div
+          className={`file-upload-enhanced ${dragOver ? 'dragover' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <Upload size={64} style={{ color: 'var(--primary-400)', marginBottom: 'var(--space-lg)' }} />
+          <h4 style={{ 
+            fontSize: '1.25rem', 
+            fontWeight: '600', 
+            marginBottom: 'var(--space-sm)',
+            color: 'var(--gray-800)'
+          }}>
+            Drop financial documents here
+          </h4>
+          <p style={{ 
+            color: 'var(--gray-600)', 
+            marginBottom: 'var(--space-lg)',
+            fontSize: '1rem'
+          }}>
+            or click to select files from your computer
+          </p>
+          <input
+            type="file"
+            multiple
+            accept=".pdf,.csv,.xlsx,.xls"
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            id="file-input"
+          />
+          <label htmlFor="file-input" className="btn btn-primary">
+            <FileText size={20} />
+            Select Files
+          </label>
+          
+          <div style={{
+            marginTop: 'var(--space-xl)',
+            padding: 'var(--space-lg)',
+            background: 'var(--gray-50)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--gray-200)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
+              <AlertCircle size={18} style={{ marginRight: 'var(--space-xs)', color: 'var(--primary-600)' }} />
+              <span style={{ fontWeight: '600', color: 'var(--gray-800)', fontSize: '0.9rem' }}>
+                Supported File Types
+              </span>
+            </div>
+            <p style={{ color: 'var(--gray-600)', fontSize: '0.85rem', margin: 0 }}>
+              <strong>Formats:</strong> PDF, CSV, Excel (XLS, XLSX) • <strong>Max size:</strong> 10MB per file
+              <br />
+              <strong>Documents:</strong> Income statements, Balance sheets, Cash flow statements
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{
+          padding: 'var(--space-3xl)',
+          textAlign: 'center',
+          background: 'var(--gray-50)',
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--gray-200)'
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto var(--space-lg)',
+            background: 'linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Upload size={32} color="var(--primary-600)" />
+          </div>
+          <h4 style={{ marginBottom: 'var(--space-md)', color: 'var(--gray-800)' }}>
+            Processing Your Documents
+          </h4>
+          <div style={{
+            width: '100%',
+            height: '8px',
+            background: 'var(--gray-200)',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            marginBottom: 'var(--space-md)'
+          }}>
+            <div style={{
+              width: `${uploadProgress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%)',
+              transition: 'width 0.3s ease',
+              borderRadius: '4px'
+            }} />
+          </div>
+          <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem' }}>
+            {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Analyzing financial data...'}
+          </p>
+        </div>
+      )}
+
+      {/* Uploaded Files List */}
+      {uploadedFiles.length > 0 && !isProcessing && (
+        <div style={{ marginTop: 'var(--space-xl)' }}>
+          <h5 style={{ marginBottom: 'var(--space-md)', color: 'var(--gray-800)' }}>
+            Uploaded Files ({uploadedFiles.length})
+          </h5>
+          {uploadedFiles.map((file, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 'var(--space-md)',
+              background: 'white',
+              border: '1px solid var(--gray-200)',
+              borderRadius: 'var(--radius-lg)',
+              marginBottom: 'var(--space-sm)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <FileText size={20} color="var(--primary-600)" />
+                <div>
+                  <p style={{ margin: 0, fontWeight: '500', color: 'var(--gray-800)' }}>
+                    {file.name}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-500)' }}>
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <CheckCircle size={16} color="var(--success)" />
+                <button
+                  onClick={() => removeFile(index)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--gray-400)',
+                    padding: '4px'
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
