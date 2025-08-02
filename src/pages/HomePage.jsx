@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, FileText, Target, Zap, Shield, Award } from 'lucide-react';
+import Testimonials from '../components/Testimonials';
 
 const HomePage = () => {
   return (
@@ -10,7 +11,7 @@ const HomePage = () => {
         <div className="container">
           <h1>McKinsey-Level Strategy Reports for SMBs</h1>
           <p>Get AI-powered business strategy consultations tailored to your financial data. Comprehensive analysis and actionable recommendations for just $497.</p>
-          <Link to="/onboarding" className="btn btn-primary" style={{ fontSize: '18px', padding: '16px 32px' }}>
+          <Link to="/onboarding" className="btn btn-primary btn-large">
             Get Your Strategy Report
           </Link>
         </div>
@@ -146,6 +147,9 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <Testimonials />
+
       {/* Pricing Section */}
       <section style={{ padding: '80px 0', background: 'white' }}>
         <div className="container">
@@ -157,7 +161,7 @@ const HomePage = () => {
               Get the same quality analysis that Fortune 500 companies pay tens of thousands for.
             </p>
             
-            <div className="card" style={{ padding: '48px', textAlign: 'center' }}>
+            <div className="card card-premium" style={{ padding: '48px', textAlign: 'center' }}>
               <div style={{ fontSize: '48px', fontWeight: '700', color: '#2563eb', marginBottom: '16px' }}>
                 $497
               </div>
@@ -188,7 +192,7 @@ const HomePage = () => {
                 </li>
               </ul>
               
-              <Link to="/onboarding" className="btn btn-primary" style={{ width: '100%', fontSize: '18px', padding: '16px' }}>
+              <Link to="/onboarding" className="btn btn-primary btn-large w-full">
                 Start Your Analysis
               </Link>
             </div>

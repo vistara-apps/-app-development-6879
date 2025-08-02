@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCompany } from '../context/CompanyContext';
 import FinancialUpload from '../components/FinancialUpload';
+import ProgressIndicator from '../components/ProgressIndicator';
 import { Building, Industry, DollarSign } from 'lucide-react';
 
 const OnboardingPage = () => {
@@ -54,22 +55,11 @@ const OnboardingPage = () => {
   };
 
   return (
-    <div style={{ padding: '40px 0', minHeight: '80vh', background: '#f9fafb' }}>
+    <div style={{ padding: 'var(--space-3xl) 0', minHeight: '80vh', background: 'var(--gray-50)' }}>
       <div className="container">
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          {/* Progress Bar */}
-          <div style={{ marginBottom: '32px' }}>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: step === 1 ? '50%' : '100%' }}
-              ></div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-              <span style={{ color: '#2563eb', fontWeight: '600' }}>Company Info</span>
-              <span style={{ color: step === 2 ? '#2563eb' : '#6b7280', fontWeight: '600' }}>Financial Data</span>
-            </div>
-          </div>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          {/* Progress Indicator */}
+          <ProgressIndicator currentStep={step} />
 
           {step === 1 && (
             <div className="card">
